@@ -177,8 +177,3 @@ CACHES = {
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Directory for collected static files
-
-# Optional: If you have a project-wide static folder
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
