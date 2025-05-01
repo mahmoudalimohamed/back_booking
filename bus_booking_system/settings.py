@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('DJ_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Application definition
 INSTALLED_APPS = [
@@ -129,33 +129,26 @@ SIMPLE_JWT = {
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://localhost:5173",
-    "http://localhost:3000",       # React development server
-    "http://192.168.8.17:3000",    # React Native device (use the device's IP if needed)
-    "http://localhost:8081",       # React Native packager server
-    "http://192.168.8.17:8000",    # Ensure server URL is here
-    "https://2bc4-196-155-86-42.ngrok-free.app",  # Add ngrok URL for backend
-    "https://busbooking-virid.vercel.app"
+    "http://127.0.0.1:8000",  # Django dev server
+    "http://localhost:3000",  # React development server
+    "https://busbooking-virid.vercel.app",  # Vercel frontend
+    "https://mahmoudali0.pythonanywhere.com",  # PythonAnywhere backend
 ]
 
+# Django allowed hosts
 ALLOWED_HOSTS = [
-    'localhost',           # Accept requests for localhost
-    '127.0.0.1',           # Allow requests from localhost IP
-    '192.168.8.17',        # Allow requests from local network IP
-    '0.0.0.0',            # Allow requests from all network interfaces
-    '2bc4-196-155-86-42.ngrok-free.app',  # Add ngrok URL
-    'busbooking-virid.vercel.app',  # Add Vercel URL
+    "localhost",  # For local development
+    "127.0.0.1",  # For local development
+    "mahmoudali0.pythonanywhere.com",  # PythonAnywhere URL
 ]
 
+# CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://localhost:5173",
-    "http://localhost:8000",
-    "http://localhost:3000",
-    "https://2bc4-196-155-86-42.ngrok-free.app",  # ngrok URL
-    "https://busbooking-virid.vercel.app",
-    ]
+    "http://127.0.0.1:8000",  # Django dev server
+    "http://localhost:3000",  # React development server
+    "https://busbooking-virid.vercel.app",  # Vercel frontend
+    "https://mahmoudali0.pythonanywhere.com",  # PythonAnywhere backend
+]
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
@@ -180,3 +173,12 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Directory for collected static files
+
+# Optional: If you have a project-wide static folder
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
