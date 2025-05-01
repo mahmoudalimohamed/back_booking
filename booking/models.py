@@ -105,11 +105,6 @@ class Trip(models.Model):
         ]
 
 
-# Override the default manager for Booking to use select_related
-class BookingQuerySet(models.QuerySet):
-    def with_related(self):
-        return self.select_related('user', 'trip__start_location', 'trip__destination')
-
 
 # Model for a booking, representing a reservation made by a user for a specific trip
 class Booking(models.Model):
@@ -134,7 +129,6 @@ class Booking(models.Model):
     expires_at = models.DateTimeField(null=True, blank=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
 
-    objects = BookingQuerySet.as_manager()  # Use the custom QuerySet
 
     class Meta:
         ordering = ['-booking_date']

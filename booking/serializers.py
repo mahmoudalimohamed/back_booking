@@ -135,33 +135,3 @@ class LightweightBookingSerializer(serializers.ModelSerializer):
         fields = ['id', 'trip', 'seats_booked', 'selected_seats', 'payment_status', 'status', 'booking_date', 'total_price','payment_type']  # Reduced fields
 
 
-class BookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.select_related(
-        'user', 'trip', 'trip__start_location', 'trip__destination'
-    ).only(
-        'id', 'user__id', 'trip__id', 'trip__start_location__name', 'trip__destination__name',
-        'seats_booked', 'selected_seats', 'status', 'customer_name', 'customer_phone',
-        'booking_date', 'total_price', 'payment_status', 'expires_at', 'payment_type'
-    )
-    serializer_class = BookingSerializer
-
-
-class TripViewSet(viewsets.ModelViewSet):
-    queryset = Trip.objects.select_related(
-        'start_location', 'destination'
-    ).only(
-        'id', 'start_location__name', 'destination__name', 'bus_type', 'departure_date',
-        'arrival_date', 'total_seats', 'available_seats', 'price', 'created_at', 'updated_at'
-    )
-    serializer_class = TripSerializer
-
-
-class LightweightBookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.select_related(
-        'trip__start_location', 'trip__destination'
-    ).only(
-        'id', 'trip__id', 'trip__start_location__name', 'trip__destination__name',
-        'seats_booked', 'selected_seats', 'payment_status', 'status', 'booking_date',
-        'total_price', 'payment_type'
-    )
-    serializer_class = LightweightBookingSerializer

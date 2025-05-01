@@ -20,32 +20,45 @@ from decouple import config
 from .payment import PaymentHelper
 from ..utils import generate_ticket_pdf, send_ticket_email
 
-
 # Define PAYMOB_ORDER_URL
 PAYMOB_ORDER_URL = config('PAY_ORDER_URL')
 logger = logging.getLogger(__name__)
 TEMP_LOCK_EXPIRY = 600
 
-
-
 class BookingCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, trip_id):
-        trip = get_object_or_404(Trip, id=trip_id)
-        seats = {
-            'total_seats': trip.total_seats,
-            'available_seats': trip.available_seats,
-            'seat_status': trip.seats,
-            'unavailable_seats': [
-                seat_num for seat_num, status in trip.seats.items()
-                if status != 'available'
-            ]
-        }
+        cache_key = f"trip_seats_{trip_id}"
+        seats = cache.get(cache_key)
+        if not seats:
+            trip = get_object_or_404(
+                Trip.objects.select_related('start_location', 'destination').only(
+                    'id', 'total_seats', 'available_seats', 'seats',
+                    'start_location__name', 'destination__name', 'bus_type', 'departure_date', 'price'
+                ),
+                id=trip_id
+            )
+            seats = {
+                'total_seats': trip.total_seats,
+                'available_seats': trip.available_seats,
+                'seat_status': trip.seats,
+                'unavailable_seats': [
+                    seat_num for seat_num, status in trip.seats.items()
+                    if status != 'available'
+                ]
+            }
+            cache.set(cache_key, seats, timeout=300)  # Cache for 5 minutes
         return Response(seats, status=200)
 
     def post(self, request, trip_id):
-        trip = get_object_or_404(Trip, id=trip_id)
+        trip = get_object_or_404(
+            Trip.objects.select_related('start_location', 'destination').only(
+                'id', 'total_seats', 'available_seats', 'seats', 'price',
+                'start_location__name', 'destination__name', 'bus_type', 'departure_date'
+            ),
+            id=trip_id
+        )
         seats = request.data.get("selected_seats", [])
         payment_type = request.data.get("payment_type", "ONLINE").upper()
         
@@ -91,7 +104,13 @@ class ConfirmBookingView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, trip_id, temp_booking_ref):
-        trip = get_object_or_404(Trip, id=trip_id)
+        trip = get_object_or_404(
+            Trip.objects.select_related('start_location', 'destination').only(
+                'id', 'total_seats', 'available_seats', 'seats', 'price',
+                'start_location__name', 'destination__name', 'bus_type', 'departure_date'
+            ),
+            id=trip_id
+        )
         cache_key = f"temp_booking_{trip.id}_{temp_booking_ref}"
         temp_booking = cache.get(cache_key)
         
@@ -139,7 +158,15 @@ class ConfirmBookingView(APIView):
                 booking.save(update_fields=["payment_order_id"])
                 return Response({
                     "message": "Booking confirmed",
-                    "booking": BookingSerializer(booking).data,
+                    "booking": {
+                        "id": booking.id,
+                        "seats_booked": booking.seats_booked,
+                        "selected_seats": booking.selected_seats,
+                        "payment_status": booking.payment_status,
+                        "status": booking.status,
+                        "total_price": str(booking.total_price),
+                        "payment_type": booking.payment_type
+                    },
                     "order_id": order_id
                 }, status=201)
             else:
@@ -152,11 +179,19 @@ class ConfirmBookingView(APIView):
                 generate_ticket_pdf(booking, default_storage.path(pdf_path))
                 send_ticket_email(booking, default_storage.path(pdf_path))
                 default_storage.delete(pdf_path)
-                frontend_url = "http://localhost:3000/booking-success"
+                frontend_url = "https://busbooking-virid.vercel.app/booking-success"
                 redirect_url = f"{frontend_url}?order_id={booking.id}&success=true"
                 return Response({
                     "message": "Booking confirmed with cash payment",
-                    "booking": BookingSerializer(booking).data,
+                    "booking": {
+                        "id": booking.id,
+                        "seats_booked": booking.seats_booked,
+                        "selected_seats": booking.selected_seats,
+                        "payment_status": booking.payment_status,
+                        "status": booking.status,
+                        "total_price": str(booking.total_price),
+                        "payment_type": booking.payment_type
+                    },
                     "redirect_url": redirect_url
                 }, status=201)
         except (serializers.ValidationError, requests.RequestException) as e:
@@ -164,6 +199,7 @@ class ConfirmBookingView(APIView):
                 booking.delete()
             return Response({"error": str(e)}, status=500)
 
+# Other views unchanged (BookingCancelView, BookingDetailView, run_scheduled_job)
 class BookingCancelView(APIView):
     permission_classes = [IsAuthenticated]
 
