@@ -69,15 +69,15 @@ WSGI_APPLICATION = 'bus_booking_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': config('DB_ENGINE'),
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
-        'OPTIONS': {'sslmode': 'require'}
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME':   'mahmoudali0$default',
+        'USER':   'mahmoudali0',
+        'PASSWORD': config('PA_MYSQL_PASSWORD'),
+        'HOST':   'mahmoudali0.mysql.pythonanywhere-services.com',
+        'PORT':   '3306',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -177,3 +177,18 @@ CACHES = {
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Directory for collected static files
+
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': config('DB_ENGINE'),
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+        'OPTIONS': {'sslmode': 'require'}
+    }
+}
+
+"""
