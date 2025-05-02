@@ -53,7 +53,7 @@ class TripAdmin(admin.ModelAdmin):
     list_display = ('start_location', 'destination', 'bus_type',
                     'departure_date', 'arrival_date', 
                     'total_seats', 'available_seats',
-                    'price', 'display_seats')
+                    'price')
     list_filter = ('start_location', 'destination', 'departure_date', 'bus_type')
     search_fields = ('start_location__name', 'destination__name', 'bus_type')
 
@@ -66,12 +66,6 @@ class TripAdmin(admin.ModelAdmin):
     readonly_fields = ('available_seats', 'created_at', 'updated_at', 'seats')
 
     actions = ['duplicate_trip_for_30_days']
-
-    def display_seats(self, obj):
-        """Display the seat availability in a readable format."""
-        return ", ".join([f"{seat}: {status}" for seat, status in obj.seats.items()])
-
-    display_seats.short_description = "Seats"
 
     def duplicate_trip_for_30_days(self, request, queryset):
         if queryset.count() != 1:
