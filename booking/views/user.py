@@ -75,6 +75,7 @@ class PasswordResetRequestView(APIView):
 
     def post(self, request):
         email = request.data.get('email')
+        platform = request.data.get('platform','wed')
         if not email:
             return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -83,7 +84,11 @@ class PasswordResetRequestView(APIView):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-            reset_link = f"http://localhost:3000/reset-password?uid={uid}&token={token}"
+            if platform == 'mobile':
+                reset_link = f"bookingappmaher://reset-password/{uid}/{token}"
+                
+            else:
+                reset_link = f"https://busbooking-virid.vercel.app/reset-password?uid={uid}&token={token}"
 
             html_message = render_to_string('email/password_reset.html', {
                 'user': user,
