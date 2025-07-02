@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
+from django.utils.timezone import now
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from ..serializers import BookingSerializer
@@ -230,8 +230,8 @@ class BookingDetailView(APIView):
 
 @csrf_exempt
 def run_scheduled_job(request):
-    now = timezone.now()
-    expired_bookings = Booking.objects.filter(status='PENDING', expires_at__lt=now)
+    current_time = now()
+    expired_bookings = Booking.objects.filter(status='PENDING', expires_at__lt=current_time)
     count = expired_bookings.count()
     for booking in expired_bookings:
         booking.cancel()
