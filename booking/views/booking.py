@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.timezone import now, timezone
+from django.utils import timezone
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from ..serializers import BookingSerializer
