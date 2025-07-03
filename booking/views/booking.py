@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.timezone import now
+from django.utils import timezone
 from django.core.files.base import ContentFile
 from rest_framework.response import Response
 from ..serializers import BookingSerializer
@@ -95,7 +95,7 @@ class BookingCreateView(APIView):
             return Response({
                 "message": "Booking initiated",
                 "temp_booking_ref": temp_booking_ref,
-                "expires_at": (now() + timedelta(seconds=TEMP_LOCK_EXPIRY)).isoformat()
+                "expires_at": (timezone.now() + timedelta(seconds=TEMP_LOCK_EXPIRY)).isoformat()
             }, status=200)
         except serializers.ValidationError as e:
             return Response({"error": str(e)}, status=400)
@@ -230,7 +230,7 @@ class BookingDetailView(APIView):
 
 @csrf_exempt
 def run_scheduled_job(request):
-    current_time = now()
+    current_time = timezone.now()
     expired_bookings = Booking.objects.filter(status='PENDING', expires_at__lt=current_time)
     count = expired_bookings.count()
     for booking in expired_bookings:
