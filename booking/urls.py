@@ -4,7 +4,7 @@ from .views.user import (RegisterView, LoginView, LogoutView, UserProfileView, P
 from .views.trip import LocationListView, TripSearchView
 from .views.booking import ( BookingDetailView, BookingCancelView , BookingCreateView, ConfirmBookingView, run_scheduled_job)
 from .views.payment import (get_payment_key, paymob_response_callback, paymob_processed_callback)
-
+from rest_framework_simplejwt.views import TokenRefreshView
 app_name = 'bus_booking'
 
 urlpatterns = [
@@ -12,6 +12,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Location List
     path('locations/', LocationListView.as_view(), name='location_list'),
